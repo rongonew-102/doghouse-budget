@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐾 小狗窩新家 — 預算管理</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-200: #EF9F27;
+    --amber-600: #854F0B; --amber-800: #633806; --amber-900: #412402;
+    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
+    --teal-600: #0F6E56; --teal-800: #085041; --teal-900: #04342C;
+    --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-200: #F0997B;
+    --coral-600: #993C1D; --coral-800: #712B13;
+    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-200: #B4B2A9;
+    --gray-600: #5F5E5A; --gray-800: #444441; --gray-900: #2C2C2A;
+    --green-50: #EAF3DE; --green-600: #3B6D11; --green-800: #27500A;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --red-50: #FCEBEB; --red-600: #A32D2D; --red-800: #791F1F;
+    --purple-50: #EEEDFE; --purple-600: #534AB7; --purple-800: #3C3489;
+
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --border: #e8e4dc;
+    --text: #2C2C2A;
+    --text-muted: #888780;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 8px rgba(0,0,0,.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+
+  /* === LAYOUT === */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+  /* === SIDEBAR === */
+  .sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 4px; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); }
+  .nav-section { padding: 12px 8px 4px; }
+  .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding: 0 8px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius-sm); cursor: pointer; color: var(--gray-600); font-size: 13px; transition: all .15s; }
+  .nav-item:hover { background: var(--gray-50); color: var(--text); }
+  .nav-item.active { background: var(--amber-50); color: var(--amber-600); font-weight: 500; }
+  .nav-item .ti { font-size: 15px; }
+
+  /* === SYNC BANNER === */
+  .sync-bar { padding: 8px 16px; font-size: 12px; display: flex; align-items: center; gap: 6px; background: var(--teal-50); color: var(--teal-600); border-bottom: 1px solid var(--border); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-200); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .sync-bar .spacer { flex: 1; }
+  .sync-btn { background: none; border: 1px solid var(--teal-200); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--teal-600); cursor: pointer; }
+  .sync-btn:hover { background: var(--teal-100); }
+
+  /* === HEADER === */
+  .page-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--surface); }
+  .page-title { font-size: 17px; font-weight: 600; flex: 1; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .btn:hover { background: var(--gray-50); }
+  .btn-primary { background: var(--amber-200); border-color: var(--amber-200); color: var(--amber-900); }
+  .btn-primary:hover { background: var(--amber-100); border-color: var(--amber-100); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-danger { border-color: var(--red-600); color: var(--red-600); }
+  .btn-danger:hover { background: var(--red-50); }
+  .btn-success { background: var(--teal-50); border-color: var(--teal-200); color: var(--teal-600); }
+  .btn-success:hover { background: var(--teal-100); }
+
+  /* === SUMMARY CARDS === */
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 24px; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+  .summary-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-value { font-size: 22px; font-weight: 600; }
+  .summary-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .summary-card.accent-amber .summary-value { color: var(--amber-600); }
+  .summary-card.accent-teal .summary-value { color: var(--teal-600); }
+  .summary-card.accent-coral .summary-value { color: var(--coral-600); }
+  .summary-card.accent-purple .summary-value { color: var(--purple-600); }
+
+  /* === CATEGORY BAR === */
+  .cat-row { padding: 0 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .cat-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .12s; }
+  .cat-chip.active, .cat-chip:hover { filter: brightness(.92); }
+  .cat-edit { background: none; border: 1px dashed var(--border); color: var(--text-muted); border-radius: 20px; padding: 4px 10px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .cat-edit:hover { background: var(--gray-50); }
+
+  /* === SEARCH & FILTER === */
+  .toolbar { padding: 0 24px 14px; display: flex; gap: 8px; align-items: center; }
+  .search-wrap { position: relative; flex: 1; max-width: 320px; }
+  .search-wrap .ti { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+  .search-wrap input { width: 100%; padding: 7px 10px 7px 32px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface); }
+  .search-wrap input:focus { outline: none; border-color: var(--amber-200); }
+
+  /* === TABLE === */
+  .table-wrap { padding: 0 24px 24px; flex: 1; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  th { background: var(--gray-50); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .amount { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .cleared { opacity: .45; text-decoration: line-through; }
+
+  /* === BADGES === */
+  .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-settled { background: var(--teal-50); color: var(--teal-600); }
+  .badge-pending { background: var(--amber-50); color: var(--amber-600); }
+  .badge-partial { background: var(--blue-50); color: var(--blue-600); }
+
+  /* === MODAL === */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; display: flex; align-items: center; justify-content: center; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+  .modal-header { padding: 20px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; }
+  .modal-title { font-size: 15px; font-weight: 600; flex: 1; }
+  .modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 18px; padding: 2px; }
+  .modal-body { padding: 18px 20px; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* === FORM === */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 13px; font-family: var(--font); background: var(--surface); color: var(--text);
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--amber-200); box-shadow: 0 0 0 3px rgba(239,159,39,.12); }
+  .field textarea { resize: vertical; min-height: 60px; }
+
+  /* === SPLIT SECTION === */
+  .split-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 12px; }
+  .split-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .split-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: .05em; }
+  .person-check { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .person-check label { font-size: 13px; cursor: pointer; }
+  .person-check input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--amber-200); cursor: pointer; }
+  .split-result { background: var(--amber-50); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; }
+  .split-line { display: flex; justify-content: space-between; padding: 3px 0; }
+  .split-line span:last-child { font-weight: 500; }
+
+  /* === PROGRESS BARS === */
+  .cat-progress-wrap { padding: 0 24px 16px; }
+  .cat-progress-item { margin-bottom: 12px; }
+  .cat-progress-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+  .cat-progress-bar { height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+  .cat-progress-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+
+  /* === PEOPLE EDITOR === */
+  .people-list { display: flex; flex-direction: column; gap: 6px; }
+  .people-item { display: flex; align-items: center; gap: 8px; }
+  .people-item input { flex: 1; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+
+  /* === SPLIT HISTORY === */
+  .split-batch { border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 10px; overflow: hidden; }
+  .split-batch-header { background: var(--gray-50); padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+  .split-batch-body { padding: 8px 14px; }
+  .split-entry { display: flex; justify-content: space-between; padding: 3px 0; font-size: 13px; color: var(--text-muted); }
+  .split-entry.settled span:last-child { color: var(--teal-600); font-weight: 500; }
+
+  .hidden { display: none !important; }
+  .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+  .empty-state .ti { font-size: 36px; display: block; margin-bottom: 10px; }
+
+  /* Gsync modal */
+  .gsheet-input { font-family: monospace; font-size: 12px; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab { padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all .15s; }
+  .tab.active { color: var(--amber-600); border-bottom-color: var(--amber-200); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* settled overlay on row */
+  .row-settled td { color: var(--text-muted) !important; }
+  .row-settled .amount { color: var(--teal-600) !important; text-decoration: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">🐾 小狗窩新家</div>
+      <div class="brand-sub">搬家預算管理</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">主功能</div>
+      <div class="nav-item active" onclick="showView('expenses')"><i class="ti ti-list"></i> 費用明細</div>
+      <div class="nav-item" onclick="showView('summary')"><i class="ti ti-chart-pie"></i> 費用統計</div>
+      <div class="nav-item" onclick="showView('split')"><i class="ti ti-arrows-split"></i> 分帳記錄</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">設定</div>
+      <div class="nav-item" onclick="openModal('modal-people')"><i class="ti ti-users"></i> 成員管理</div>
+      <div class="nav-item" onclick="openModal('modal-categories')"><i class="ti ti-tags"></i> 分類標籤</div>
+      <div class="nav-item" onclick="openModal('modal-gsync')"><i class="ti ti-brand-google-drive"></i> Google Sheet</div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="padding:12px 16px; border-top:1px solid var(--border);">
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">已設定 Google Sheet</div>
+      <div id="sheet-url-preview" style="font-size:11px; color:var(--teal-600); word-break:break-all;">尚未連結</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- SYNC BAR -->
+    <div class="sync-bar">
+      <div class="sync-dot"></div>
+      <span id="sync-status">準備同步 Google Sheet</span>
+      <div class="spacer"></div>
+      <button class="sync-btn" onclick="syncNow()"><i class="ti ti-refresh" style="font-size:11px"></i> 立即同步</button>
+    </div>
+
+    <!-- ===================== EXPENSES VIEW ===================== -->
+    <div id="view-expenses">
+      <div class="page-header">
+        <span class="page-title">費用明細</span>
+        <button class="btn" onclick="openModal('modal-new-expense')"><i class="ti ti-plus"></i> 新增費用</button>
+        <button class="btn btn-success" onclick="openModal('modal-new-split')"><i class="ti ti-arrows-split"></i> 進行分帳</button>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-row" id="summary-cards"></div>
+
+      <!-- Category Filter -->
+      <div class="cat-row" id="cat-filter-row"></div>
+
+      <!-- Search + Toolbar -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="ti ti-search"></i>
+          <input type="text" id="search-input" placeholder="搜尋費用項目…" oninput="renderExpenses()">
+        </div>
+        <select id="filter-person" onchange="renderExpenses()" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);">
+          <option value="">所有人</option>
+        </select>
+        <select id="filter-split" onchange="renderExpenses()" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);">
+          <option value="">全部狀態</option>
+          <option value="pending">未分帳</option>
+          <option value="partial">部分分帳</option>
+          <option value="settled">已結清</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th><th>分類</th><th>項目</th>
+              <th>金額</th><th>付款人</th><th>分帳人</th>
+              <th>分帳狀態</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="expense-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===================== SUMMARY VIEW ===================== -->
+    <div id="view-summary" class="hidden">
+      <div class="page-header">
+        <span class="page-title">費用統計</span>
+      </div>
+      <div class="summary-row" id="summary-cards-2"></div>
+      <div style="padding:0 24px 12px;font-size:13px;font-weight:600;color:var(--text-muted)">各分類進度</div>
+      <div class="cat-progress-wrap" id="cat-progress-wrap"></div>
+      <div style="padding:0 24px 12px;font-size:13px;font-weight:600;color:var(--text-muted)">各成員花費</div>
+      <div class="cat-progress-wrap" id="person-progress-wrap"></div>
+    </div>
+
+    <!-- ===================== SPLIT VIEW ===================== -->
+    <div id="view-split" class="hidden">
+      <div class="page-header">
+        <span class="page-title">分帳記錄</span>
+        <button class="btn btn-success" onclick="openModal('modal-new-split')"><i class="ti ti-plus"></i> 新增分帳批次</button>
+      </div>
+      <div style="padding:0 24px"><div id="split-batches"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== MODALS =================== -->
+
+<!-- NEW EXPENSE -->
+<div class="modal-overlay hidden" id="modal-new-expense">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="expense-modal-title">新增費用</span>
+      <button class="modal-close" onclick="closeModal('modal-new-expense')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editing-id">
+      <div class="form-row">
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>分類</label>
+          <select id="f-category"></select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>項目名稱</label>
+          <input type="text" id="f-item" placeholder="例：沙發、冰箱…">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>金額 (NT$)</label>
+          <input type="number" id="f-amount" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label>付款人</label>
+          <select id="f-payer"></select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>備註</label>
+        <textarea id="f-note" placeholder="可選填"></textarea>
+      </div>
+      <div style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">分帳人（可先選，之後也能在分帳功能處理）</div>
+      <div id="f-participants" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-new-expense')">取消</button>
+      <button class="btn btn-primary" onclick="saveExpense()"><i class="ti ti-check"></i> 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES EDITOR -->
+<div class="modal-overlay hidden" id="modal-categories">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">編輯分類標籤</span>
+      <button class="modal-close" onclick="closeModal('modal-categories')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="modal-cat-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="addNewCategory()"><i class="ti ti-plus"></i> 新增分類</button>
+      <button class="btn btn-primary" onclick="saveCategories()"><i class="ti ti-check"></i> 完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- PEOPLE EDITOR -->
+<div class="modal-overlay hidden" id="modal-people">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">成員管理</span>
+      <button class="modal-close" onclick="closeModal('modal-people')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="modal-people-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="addNewPerson()"><i class="ti ti-plus"></i> 新增成員</button>
+      <button class="btn btn-primary" onclick="savePeople()"><i class="ti ti-check"></i> 完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE SHEET SETUP -->
+<div class="modal-overlay hidden" id="modal-gsync">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Google Sheet 同步設定</span>
+      <button class="modal-close" onclick="closeModal('modal-gsync')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--blue-50);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;font-size:13px;color:var(--blue-600);line-height:1.6">
+        <strong>使用方式：</strong><br>
+        1. 建立一個 Google Sheet 並開放「可連結的人可編輯」<br>
+        2. 將試算表 ID 貼到下方（網址中 /d/ 後面的那串）<br>
+        3. 需搭配 Google Apps Script 作為 API（詳見說明文件）<br><br>
+        <strong>試算表 ID 範例：</strong><br>
+        <code>1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</code>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>試算表 ID</label>
+        <input type="text" id="gsheet-id" class="gsheet-input" placeholder="貼上你的 Google Sheet ID">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Apps Script 網址 (Web App URL)</label>
+        <input type="text" id="gsheet-url" class="gsheet-input" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">
+        ⚠️ 本網站資料會同步儲存在瀏覽器本機。點「測試連線」可驗證 Apps Script 是否正確設定。
+      </div>
+      <button class="btn btn-sm" onclick="testGSheetConnection()"><i class="ti ti-wifi"></i> 測試連線</button>
+      <span id="gsheet-test-result" style="font-size:12px;margin-left:8px"></span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-gsync')">取消</button>
+      <button class="btn btn-primary" onclick="saveGSheetConfig()"><i class="ti ti-check"></i> 儲存設定</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPLIT MODAL -->
+<div class="modal-overlay hidden" id="modal-new-split">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">進行分帳</span>
+      <button class="modal-close" onclick="closeModal('modal-new-split')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="split-modal-body">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-new-split')">取消</button>
+      <button class="btn btn-primary" onclick="confirmSplit()"><i class="ti ti-check"></i> 確認分帳</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW EXPENSE DETAIL -->
+<div class="modal-overlay hidden" id="modal-view-expense">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">費用明細</span>
+      <button class="modal-close" onclick="closeModal('modal-view-expense')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="view-expense-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="view-expense-delete" onclick="">刪除</button>
+      <button class="btn" onclick="closeModal('modal-view-expense')">關閉</button>
+      <button class="btn btn-primary" id="view-expense-edit" onclick="">編輯</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =================== DATA STORE ===================
+const COLORS = [
+  {bg:'#FAEEDA',text:'#854F0B'}, {bg:'#E1F5EE',text:'#0F6E56'},
+  {bg:'#FAECE7',text:'#993C1D'}, {bg:'#EEEDFE',text:'#534AB7'},
+  {bg:'#EAF3DE',text:'#3B6D11'}, {bg:'#E6F1FB',text:'#185FA5'},
+  {bg:'#FAEEDA',text:'#633806'}, {bg:'#FCEBEB',text:'#A32D2D'},
+];
+const CAT_ICONS = {
+  '家具':'ti-armchair','家電':'ti-device-tv','裝修':'ti-tools','寢具':'ti-bed',
+  '廚房':'ti-chef-hat','浴室':'ti-droplet','收納':'ti-box','雜項':'ti-package',
+  '電器':'ti-plug','清潔':'ti-spray','搬運':'ti-truck','其他':'ti-dots'
+};
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('doghouse-budget-v2');
+    if (saved) return JSON.parse(saved);
+  } catch(e){}
+  return {
+    expenses: [],
+    categories: [
+      {id:'c1',name:'家具',colorIdx:0},{id:'c2',name:'家電',colorIdx:1},
+      {id:'c3',name:'裝修',colorIdx:2},{id:'c4',name:'寢具',colorIdx:3},
+      {id:'c5',name:'廚房',colorIdx:4},{id:'c6',name:'雜項',colorIdx:7},
+    ],
+    people: [
+      {id:'p1',name:'我',colorIdx:0},{id:'p2',name:'亨利',colorIdx:1}
+    ],
+    splitBatches: [],
+    gsheet: {id:'', url:''},
+    activeCatFilter: 'all',
+  };
+}
+
+function saveState() {
+  localStorage.setItem('doghouse-budget-v2', JSON.stringify(state));
+}
+
+// =================== NAVIGATION ===================
+function showView(v) {
+  ['expenses','summary','split'].forEach(name => {
+    document.getElementById('view-'+name).classList.toggle('hidden', name !== v);
+  });
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim().includes(
+      v==='expenses'?'費用明細':v==='summary'?'費用統計':'分帳記錄'
+    ));
+  });
+  if (v === 'summary') renderSummaryView();
+  if (v === 'split') renderSplitView();
+  if (v === 'expenses') renderExpenses();
+}
+
+// =================== MODALS ===================
+function openModal(id) {
+  if (id === 'modal-new-expense') prepExpenseModal();
+  if (id === 'modal-categories') renderCatEditor();
+  if (id === 'modal-people') renderPeopleEditor();
+  if (id === 'modal-gsync') {
+    document.getElementById('gsheet-id').value = state.gsheet.id || '';
+    document.getElementById('gsheet-url').value = state.gsheet.url || '';
+  }
+  if (id === 'modal-new-split') renderSplitModal();
+  document.getElementById(id).classList.remove('hidden');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+  if (id === 'modal-new-expense') { document.getElementById('editing-id').value = ''; }
+}
+
+// =================== EXPENSES ===================
+function getCat(id) { return state.categories.find(c=>c.id===id)||{name:'?',colorIdx:7}; }
+function getPerson(id) { return state.people.find(p=>p.id===id)||{name:'?',colorIdx:7}; }
+
+function getExpenseSplitStatus(exp) {
+  if (!exp.participantIds || exp.participantIds.length === 0) return 'pending';
+  const batches = state.splitBatches.filter(b => b.expenseIds.includes(exp.id));
+  if (batches.length === 0) return 'pending';
+  const settledBatch = batches.find(b => b.settled);
+  if (settledBatch) return 'settled';
+  return 'partial';
+}
+
+function prepExpenseModal(editId) {
+  document.getElementById('expense-modal-title').textContent = editId ? '編輯費用' : '新增費用';
+  document.getElementById('editing-id').value = editId || '';
+
+  // Date default
+  const dateEl = document.getElementById('f-date');
+  if (!editId) dateEl.value = new Date().toISOString().split('T')[0];
+
+  // Populate category select
+  const catSel = document.getElementById('f-category');
+  catSel.innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+
+  // Populate payer select
+  const payerSel = document.getElementById('f-payer');
+  payerSel.innerHTML = state.people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+
+  // Participants checkboxes
+  const partDiv = document.getElementById('f-participants');
+  partDiv.innerHTML = state.people.map(p=>`
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;background:var(--gray-50);border-radius:20px;font-size:13px;">
+      <input type="checkbox" name="part" value="${p.id}" checked>
+      ${p.name}
+    </label>
+  `).join('');
+
+  if (editId) {
+    const exp = state.expenses.find(e=>e.id===editId);
+    if (exp) {
+      dateEl.value = exp.date;
+      catSel.value = exp.categoryId;
+      document.getElementById('f-item').value = exp.item;
+      document.getElementById('f-amount').value = exp.amount;
+      payerSel.value = exp.payerId;
+      document.getElementById('f-note').value = exp.note || '';
+      partDiv.querySelectorAll('input[name=part]').forEach(cb => {
+        cb.checked = (exp.participantIds||[]).includes(cb.value);
+      });
+    }
+  }
+}
+
+function saveExpense() {
+  const item = document.getElementById('f-item').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  if (!item) { alert('請填寫項目名稱'); return; }
+  if (isNaN(amount) || amount <= 0) { alert('請填寫有效金額'); return; }
+
+  const parts = [...document.querySelectorAll('input[name=part]:checked')].map(cb=>cb.value);
+  const editId = document.getElementById('editing-id').value;
+  const expData = {
+    id: editId || 'e'+Date.now(),
+    date: document.getElementById('f-date').value,
+    categoryId: document.getElementById('f-category').value,
+    item,
+    amount,
+    payerId: document.getElementById('f-payer').value,
+    participantIds: parts,
+    note: document.getElementById('f-note').value.trim(),
+  };
+
+  if (editId) {
+    const idx = state.expenses.findIndex(e=>e.id===editId);
+    if (idx !== -1) state.expenses[idx] = expData;
+  } else {
+    state.expenses.unshift(expData);
+  }
+
+  saveState();
+  closeModal('modal-new-expense');
+  renderAll();
+  syncNow();
+}
+
+function deleteExpense(id) {
+  if (!confirm('確定要刪除這筆費用嗎？')) return;
+  state.expenses = state.expenses.filter(e=>e.id!==id);
+  saveState();
+  closeModal('modal-view-expense');
+  renderAll();
+  syncNow();
+}
+
+function renderExpenses() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filterPerson = document.getElementById('filter-person').value;
+  const filterSplit = document.getElementById('filter-split').value;
+  const activeCat = state.activeCatFilter;
+
+  let filtered = state.expenses.filter(e => {
+    if (activeCat !== 'all' && e.categoryId !== activeCat) return false;
+    if (filterPerson && e.payerId !== filterPerson && !(e.participantIds||[]).includes(filterPerson)) return false;
+    if (q && !e.item.toLowerCase().includes(q) && !getPerson(e.payerId).name.toLowerCase().includes(q)) return false;
+    if (filterSplit) {
+      const status = getExpenseSplitStatus(e);
+      if (filterSplit !== status) return false;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('expense-tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-receipt-off"></i>沒有找到費用記錄</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(exp => {
+    const cat = getCat(exp.categoryId);
+    const col = COLORS[cat.colorIdx%COLORS.length];
+    const payer = getPerson(exp.payerId);
+    const parts = (exp.participantIds||[]).map(id=>getPerson(id).name).join('、');
+    const status = getExpenseSplitStatus(exp);
+    const badge = status === 'settled'
+      ? `<span class="badge badge-settled"><i class="ti ti-check" style="font-size:10px"></i> 已結清</span>`
+      : status === 'partial'
+      ? `<span class="badge badge-partial"><i class="ti ti-dots" style="font-size:10px"></i> 部分</span>`
+      : `<span class="badge badge-pending"><i class="ti ti-clock" style="font-size:10px"></i> 未分帳</span>`;
+
+    return `<tr class="${status==='settled'?'row-settled':''}" style="cursor:pointer" onclick="viewExpense('${exp.id}')">
+      <td>${exp.date}</td>
+      <td><span class="badge" style="background:${col.bg};color:${col.text}">${cat.name}</span></td>
+      <td>${exp.item}${exp.note?`<div style="font-size:11px;color:var(--text-muted)">${exp.note}</div>`:''}</td>
+      <td class="amount">${exp.amount.toLocaleString()}</td>
+      <td>${payer.name}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${parts||'—'}</td>
+      <td>${badge}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="editExpense('${exp.id}')"><i class="ti ti-edit"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewExpense(id) {
+  const exp = state.expenses.find(e=>e.id===id);
+  if (!exp) return;
+  const cat = getCat(exp.categoryId);
+  const col = COLORS[cat.colorIdx%COLORS.length];
+  const payer = getPerson(exp.payerId);
+  const parts = (exp.participantIds||[]).map(id=>getPerson(id).name);
+  const status = getExpenseSplitStatus(exp);
+
+  document.getElementById('view-expense-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">日期</div><div style="font-size:15px;font-weight:500">${exp.date}</div></div>
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">分類</div><span class="badge" style="background:${col.bg};color:${col.text}">${cat.name}</span></div>
+      <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">項目</div><div style="font-size:15px;font-weight:500">${exp.item}</div></div>
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">金額</div><div style="font-size:20px;font-weight:600;color:var(--amber-600)">NT$ ${exp.amount.toLocaleString()}</div></div>
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">付款人</div><div style="font-size:15px">${payer.name}</div></div>
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">分帳人</div><div style="font-size:14px">${parts.join('、')||'—'}</div></div>
+      ${exp.note?`<div style="grid-column:1/-1"><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">備註</div><div style="font-size:13px">${exp.note}</div></div>`:''}
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">分帳狀態</div>
+        ${status==='settled'?'<span class="badge badge-settled">已結清</span>':status==='partial'?'<span class="badge badge-partial">部分分帳</span>':'<span class="badge badge-pending">未分帳</span>'}
+      </div>
+    </div>
+  `;
+  document.getElementById('view-expense-delete').onclick = () => deleteExpense(id);
+  document.getElementById('view-expense-edit').onclick = () => { closeModal('modal-view-expense'); editExpense(id); };
+  openModal('modal-view-expense');
+}
+
+function editExpense(id) {
+  prepExpenseModal(id);
+  openModal('modal-new-expense');
+}
+
+// =================== CATEGORY FILTERS ===================
+function renderCatFilterRow() {
+  const row = document.getElementById('cat-filter-row');
+  const all = [{id:'all',name:'全部',colorIdx:6},...state.categories];
+  row.innerHTML = all.map(c => {
+    const col = c.id==='all' ? {bg:'#2C2C2A',text:'#faf8f5'} : COLORS[c.colorIdx%COLORS.length];
+    const active = state.activeCatFilter === c.id;
+    return `<span class="cat-chip ${active?'active':''}" style="background:${active?col.bg:''};color:${active?col.text:'var(--text-muted)'};border-color:${col.bg}" onclick="setCatFilter('${c.id}')">${c.name}</span>`;
+  }).join('') + `<button class="cat-edit" onclick="openModal('modal-categories')"><i class="ti ti-pencil" style="font-size:12px"></i> 編輯</button>`;
+}
+
+function setCatFilter(id) {
+  state.activeCatFilter = id;
+  saveState();
+  renderCatFilterRow();
+  renderExpenses();
+}
+
+// =================== SUMMARY CARDS ===================
+function renderSummaryCards(containerId) {
+  const total = state.expenses.reduce((s,e)=>s+e.amount,0);
+  const settled = state.expenses.filter(e=>getExpenseSplitStatus(e)==='settled').reduce((s,e)=>s+e.amount,0);
+  const pending = state.expenses.filter(e=>getExpenseSplitStatus(e)==='pending').reduce((s,e)=>s+e.amount,0);
+  const count = state.expenses.length;
+  document.getElementById(containerId).innerHTML = `
+    <div class="summary-card accent-amber"><div class="summary-label">💰 總費用</div><div class="summary-value">NT$ ${total.toLocaleString()}</div><div class="summary-sub">${count} 筆記錄</div></div>
+    <div class="summary-card accent-teal"><div class="summary-label">✅ 已結清</div><div class="summary-value">NT$ ${settled.toLocaleString()}</div><div class="summary-sub">${Math.round(total?settled/total*100:0)}%</div></div>
+    <div class="summary-card accent-coral"><div class="summary-label">⏳ 未分帳</div><div class="summary-value">NT$ ${pending.toLocaleString()}</div></div>
+    <div class="summary-card accent-purple"><div class="summary-label">📂 分類數</div><div class="summary-value">${state.categories.length}</div><div class="summary-sub">${state.people.length} 位成員</div></div>
+  `;
+}
+
+// =================== SUMMARY VIEW ===================
+function renderSummaryView() {
+  renderSummaryCards('summary-cards-2');
+
+  const total = state.expenses.reduce((s,e)=>s+e.amount,0);
+  const catWrap = document.getElementById('cat-progress-wrap');
+  catWrap.innerHTML = state.categories.map(cat => {
+    const sum = state.expenses.filter(e=>e.categoryId===cat.id).reduce((s,e)=>s+e.amount,0);
+    const pct = total ? Math.round(sum/total*100) : 0;
+    const col = COLORS[cat.colorIdx%COLORS.length];
+    return `<div class="cat-progress-item">
+      <div class="cat-progress-row">
+        <span>${cat.name}</span>
+        <span>NT$ ${sum.toLocaleString()} <span style="color:var(--text-muted);font-size:11px">(${pct}%)</span></span>
+      </div>
+      <div class="cat-progress-bar"><div class="cat-progress-fill" style="width:${pct}%;background:${col.bg};border:1px solid ${col.text}"></div></div>
+    </div>`;
+  }).join('');
+
+  const personWrap = document.getElementById('person-progress-wrap');
+  personWrap.innerHTML = state.people.map(person => {
+    const sum = state.expenses.filter(e=>e.payerId===person.id).reduce((s,e)=>s+e.amount,0);
+    const pct = total ? Math.round(sum/total*100) : 0;
+    const col = COLORS[person.colorIdx%COLORS.length];
+    return `<div class="cat-progress-item">
+      <div class="cat-progress-row">
+        <span>${person.name}</span>
+        <span>NT$ ${sum.toLocaleString()} <span style="color:var(--text-muted);font-size:11px">(${pct}%)</span></span>
+      </div>
+      <div class="cat-progress-bar"><div class="cat-progress-fill" style="width:${pct}%;background:${col.bg};border:1px solid ${col.text}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// =================== SPLIT SYSTEM ===================
+function renderSplitModal() {
+  const pendingExps = state.expenses.filter(e => getExpenseSplitStatus(e) !== 'settled');
+
+  const body = document.getElementById('split-modal-body');
+  if (pendingExps.length === 0) {
+    body.innerHTML = `<div class="empty-state"><i class="ti ti-check-all"></i>所有費用都已結清！</div>`;
+    return;
+  }
+
+  const total = pendingExps.reduce((s,e)=>s+e.amount,0);
+
+  // Calculate per-person owed
+  const owes = {}; // { payerId: {fromId: amount} }
+  pendingExps.forEach(exp => {
+    const parts = exp.participantIds||[];
+    if (parts.length === 0) return;
+    const share = exp.amount / parts.length;
+    parts.forEach(pid => {
+      if (pid === exp.payerId) return;
+      if (!owes[exp.payerId]) owes[exp.payerId] = {};
+      owes[exp.payerId][pid] = (owes[exp.payerId][pid]||0) + share;
+    });
+  });
+
+  let owesHtml = '';
+  Object.keys(owes).forEach(payerId => {
+    Object.keys(owes[payerId]).forEach(fromId => {
+      const amt = owes[payerId][fromId];
+      owesHtml += `<div class="split-line"><span>${getPerson(fromId).name} 應還 ${getPerson(payerId).name}</span><span>NT$ ${Math.round(amt).toLocaleString()}</span></div>`;
+    });
+  });
+
+  body.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">選擇要分帳的費用</div>
+      <div style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px">
+        ${pendingExps.map(exp=>`
+          <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:0.5px solid var(--border);">
+            <input type="checkbox" class="split-exp-check" value="${exp.id}" checked>
+            <span style="flex:1;font-size:13px">${exp.date} · ${exp.item}</span>
+            <span style="font-size:13px;font-weight:500">NT$ ${exp.amount.toLocaleString()}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">分帳結算</div>
+    <div class="split-result" id="split-preview">
+      ${owesHtml||'<div style="color:var(--text-muted);font-size:13px">沒有需要分帳的金額</div>'}
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--amber-100);font-size:13px;display:flex;justify-content:space-between">
+        <span style="font-weight:600">本次分帳總額</span>
+        <span style="font-weight:600">NT$ ${total.toLocaleString()}</span>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
+      確認後這些費用會標記為「已結清」，並建立分帳記錄。
+    </div>
+  `;
+
+  // Re-calc on checkbox change
+  document.querySelectorAll('.split-exp-check').forEach(cb => {
+    cb.addEventListener('change', updateSplitPreview);
+  });
+}
+
+function updateSplitPreview() {
+  const selected = [...document.querySelectorAll('.split-exp-check:checked')].map(cb=>cb.value);
+  const selectedExps = state.expenses.filter(e=>selected.includes(e.id));
+  const total = selectedExps.reduce((s,e)=>s+e.amount,0);
+
+  const owes = {};
+  selectedExps.forEach(exp => {
+    const parts = exp.participantIds||[];
+    if (parts.length === 0) return;
+    const share = exp.amount / parts.length;
+    parts.forEach(pid => {
+      if (pid === exp.payerId) return;
+      if (!owes[exp.payerId]) owes[exp.payerId] = {};
+      owes[exp.payerId][pid] = (owes[exp.payerId][pid]||0) + share;
+    });
+  });
+
+  let owesHtml = '';
+  Object.keys(owes).forEach(payerId => {
+    Object.keys(owes[payerId]).forEach(fromId => {
+      const amt = owes[payerId][fromId];
+      owesHtml += `<div class="split-line"><span>${getPerson(fromId).name} 應還 ${getPerson(payerId).name}</span><span>NT$ ${Math.round(amt).toLocaleString()}</span></div>`;
+    });
+  });
+
+  document.getElementById('split-preview').innerHTML = `
+    ${owesHtml||'<div style="color:var(--text-muted);font-size:13px">沒有需要分帳的金額</div>'}
+    <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--amber-100);font-size:13px;display:flex;justify-content:space-between">
+      <span style="font-weight:600">本次分帳總額</span>
+      <span style="font-weight:600">NT$ ${total.toLocaleString()}</span>
+    </div>
+  `;
+}
+
+function confirmSplit() {
+  const selectedIds = [...document.querySelectorAll('.split-exp-check:checked')].map(cb=>cb.value);
+  if (selectedIds.length === 0) { alert('請選擇至少一筆費用'); return; }
+
+  const selectedExps = state.expenses.filter(e=>selectedIds.includes(e.id));
+  const owes = {};
+  selectedExps.forEach(exp => {
+    const parts = exp.participantIds||[];
+    if (parts.length === 0) return;
+    const share = exp.amount / parts.length;
+    parts.forEach(pid => {
+      if (pid === exp.payerId) return;
+      if (!owes[exp.payerId]) owes[exp.payerId] = {};
+      owes[exp.payerId][pid] = (owes[exp.payerId][pid]||0) + share;
+    });
+  });
+
+  const entries = [];
+  Object.keys(owes).forEach(payerId => {
+    Object.keys(owes[payerId]).forEach(fromId => {
+      entries.push({ payerId, fromId, amount: Math.round(owes[payerId][fromId]) });
+    });
+  });
+
+  state.splitBatches.push({
+    id: 'b'+Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    expenseIds: selectedIds,
+    entries,
+    settled: true,
+    total: selectedExps.reduce((s,e)=>s+e.amount,0),
+  });
+
+  saveState();
+  closeModal('modal-new-split');
+  renderAll();
+  syncNow();
+}
+
+function renderSplitView() {
+  const wrap = document.getElementById('split-batches');
+  if (state.splitBatches.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><i class="ti ti-arrows-split"></i>尚無分帳記錄</div>`;
+    return;
+  }
+  wrap.innerHTML = [...state.splitBatches].reverse().map(batch => {
+    const entriesHtml = batch.entries.map(en =>
+      `<div class="split-entry settled"><span>${getPerson(en.fromId).name} → ${getPerson(en.payerId).name}</span><span>NT$ ${en.amount.toLocaleString()} ✓</span></div>`
+    ).join('');
+    const expNames = batch.expenseIds.map(id => {
+      const e = state.expenses.find(x=>x.id===id);
+      return e ? e.item : '(已刪除)';
+    }).join('、');
+    return `<div class="split-batch">
+      <div class="split-batch-header">
+        <i class="ti ti-calendar" style="font-size:13px"></i>
+        <span>${batch.date}</span>
+        <span style="color:var(--text-muted);font-weight:400;margin-left:4px">· ${batch.expenseIds.length} 筆費用 · NT$ ${batch.total.toLocaleString()}</span>
+        <span style="flex:1"></span>
+        <span class="badge badge-settled">已結清</span>
+      </div>
+      <div class="split-batch-body">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">包含：${expNames}</div>
+        ${entriesHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =================== CATEGORIES EDITOR ===================
+function renderCatEditor() {
+  const body = document.getElementById('modal-cat-body');
+  body.innerHTML = `<div id="cat-list" style="display:flex;flex-direction:column;gap:8px">`+
+    state.categories.map((c,i)=>{
+      const col = COLORS[c.colorIdx%COLORS.length];
+      return `<div style="display:flex;align-items:center;gap:8px">
+        <span class="badge" style="background:${col.bg};color:${col.text};min-width:60px;justify-content:center">${c.name}</span>
+        <input value="${c.name}" oninput="state.categories[${i}].name=this.value" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px">
+        <select onchange="state.categories[${i}].colorIdx=parseInt(this.value)" style="padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px">
+          ${COLORS.map((c2,j)=>`<option value="${j}" ${j===c.colorIdx?'selected':''}>色彩 ${j+1}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-danger" onclick="removeCategory('${c.id}')"><i class="ti ti-trash"></i></button>
+      </div>`;
+    }).join('')+`</div>`;
+}
+
+function addNewCategory() {
+  state.categories.push({id:'c'+Date.now(),name:'新分類',colorIdx:state.categories.length%COLORS.length});
+  renderCatEditor();
+}
+
+function removeCategory(id) {
+  if (!confirm('刪除後此分類下的費用將無法顯示分類，確定嗎？')) return;
+  state.categories = state.categories.filter(c=>c.id!==id);
+  renderCatEditor();
+}
+
+function saveCategories() {
+  saveState();
+  closeModal('modal-categories');
+  renderAll();
+}
+
+// =================== PEOPLE EDITOR ===================
+function renderPeopleEditor() {
+  const body = document.getElementById('modal-people-body');
+  body.innerHTML = `<div class="people-list" id="people-list">`+
+    state.people.map((p,i)=>{
+      const col = COLORS[p.colorIdx%COLORS.length];
+      return `<div class="people-item">
+        <div class="avatar" style="background:${col.bg};color:${col.text}">${p.name[0]}</div>
+        <input value="${p.name}" oninput="state.people[${i}].name=this.value;this.previousElementSibling.textContent=this.value[0]" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px">
+        <select onchange="state.people[${i}].colorIdx=parseInt(this.value)" style="padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px">
+          ${COLORS.map((c,j)=>`<option value="${j}" ${j===p.colorIdx?'selected':''}>色彩 ${j+1}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-danger" onclick="removePerson('${p.id}')"><i class="ti ti-trash"></i></button>
+      </div>`;
+    }).join('')+`</div>`;
+}
+
+function addNewPerson() {
+  state.people.push({id:'p'+Date.now(),name:'新成員',colorIdx:state.people.length%COLORS.length});
+  renderPeopleEditor();
+}
+
+function removePerson(id) {
+  if (!confirm('確定要刪除這位成員嗎？')) return;
+  state.people = state.people.filter(p=>p.id!==id);
+  renderPeopleEditor();
+}
+
+function savePeople() {
+  saveState();
+  closeModal('modal-people');
+  renderAll();
+}
+
+// =================== PERSON FILTER DROPDOWN ===================
+function renderPersonFilter() {
+  const sel = document.getElementById('filter-person');
+  sel.innerHTML = `<option value="">所有人</option>` +
+    state.people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+// =================== GOOGLE SHEET SYNC ===================
+function saveGSheetConfig() {
+  state.gsheet.id = document.getElementById('gsheet-id').value.trim();
+  state.gsheet.url = document.getElementById('gsheet-url').value.trim();
+  saveState();
+  updateSheetPreview();
+  closeModal('modal-gsync');
+}
+
+function updateSheetPreview() {
+  const el = document.getElementById('sheet-url-preview');
+  if (state.gsheet.id) {
+    el.textContent = 'ID: '+state.gsheet.id.substring(0,20)+'…';
+  } else {
+    el.textContent = '尚未連結';
+  }
+}
+
+async function testGSheetConnection() {
+  const url = document.getElementById('gsheet-url').value.trim();
+  const result = document.getElementById('gsheet-test-result');
+  if (!url) { result.textContent = '請先填寫 Apps Script 網址'; result.style.color='var(--red-600)'; return; }
+  result.textContent = '測試中…'; result.style.color='var(--text-muted)';
+  try {
+    const resp = await fetch(url+'?action=ping', {method:'GET'});
+    const text = await resp.text();
+    result.textContent = '✓ 連線成功！'; result.style.color='var(--teal-600)';
+  } catch(e) {
+    result.textContent = '✗ 無法連線，請確認設定'; result.style.color='var(--red-600)';
+  }
+}
+
+async function syncNow() {
+  const status = document.getElementById('sync-status');
+  if (!state.gsheet.url) {
+    status.textContent = '未設定 Google Sheet（本機儲存已更新）';
+    return;
+  }
+  status.textContent = '同步中…';
+  try {
+    const payload = { action: 'sync', data: JSON.stringify(state) };
+    const resp = await fetch(state.gsheet.url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const now = new Date().toLocaleTimeString('zh-TW');
+    status.textContent = `上次同步：${now}`;
+  } catch(e) {
+    status.textContent = '同步失敗（本機已儲存）';
+  }
+}
+
+// =================== RENDER ALL ===================
+function renderAll() {
+  renderSummaryCards('summary-cards');
+  renderCatFilterRow();
+  renderPersonFilter();
+  renderExpenses();
+  updateSheetPreview();
+}
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
